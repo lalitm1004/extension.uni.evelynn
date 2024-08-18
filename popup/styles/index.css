@@ -1,0 +1,75 @@
+:root {
+    --bg-color: rgb(9, 9, 11);
+    --text-color: rgb(250, 250, 250);
+    --button-color: rgb(38, 38, 38);
+    --button-color-hover: rgb(63, 63, 63);
+    
+    --primary-button: rgb(255, 255, 255);
+    --primary-button-hover: rgb(226, 226, 226);
+}
+
+body {
+    height: fit-content;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 20px;
+}
+
+.lucide-calendar {
+    margin-top: 5px;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+.title {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+
+    margin-bottom: 10px;
+}
+
+button {
+    width: 80%;
+    font-size: 1.4rem;
+    background-color: var(--primary-button);
+    color: rgb(10, 10, 10);
+    border: none;
+    border-radius: 5px;
+    padding: 5px 20px;
+    transition: all 200ms;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+button:hover {
+    background-color: var(--primary-button-hover);
+}
+
+.lucide-refresh-cw {
+    width: 20px;
+    aspect-ratio: 1;
+}
+
+.action {
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}

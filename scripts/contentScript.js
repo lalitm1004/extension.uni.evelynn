@@ -1,6 +1,3 @@
-/*
-CSD     CSD213 - L1<br>Lecture<br>9:00AM - 10:25AM<br>S. Floor D Block D217
-*/
 const convertToMilitaryTime = (timeStr) => {
     const [time, modifier] = timeStr.match(/(\d{1,2}:\d{2})([AP]M)/).slice(1, 3);
     let [hours, minutes] = time.split(':').map(Number);
@@ -80,9 +77,8 @@ const pushScheduleToHandler = (schedule) => {
     chrome.runtime.sendMessage({
         action: 'pushToHandler',
         url: url,
-    })
+    });
 }
 
 const schedule = extractSchedule();
-console.log(schedule)
 pushScheduleToHandler(schedule);

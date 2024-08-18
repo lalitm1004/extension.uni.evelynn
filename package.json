@@ -1,0 +1,35 @@
+{
+  "name": "extension.uni.evelynn",
+  "version": "0.1.1",
+  "description": "A chrome extension to capture ERP data and pass it on as query params to handler website",
+  "main": "index.js",
+  "type": "module",
+  "license": "AGPL-version-3.0",
+  "private": false,
+  "engines": {
+    "node": ">= 14.0.0",
+    "npm": ">= 6.0.0"
+  },
+  "homepage": "https://uni.evelynn.life",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lalitm1004/extension.uni.evelynn"
+  },
+  "author": {
+    "name": "Lalit M",
+    "url": "https://github.com/lalitm1004"
+  },
+  "contributors": [
+    
+  ],
+  "scripts": {
+    "watch": "npx tailwindcss -i popup/styles/input.css -o popup/styles/globals.css --watch",
+    "minify": "npx tailwindcss -i popup/styles/input.css -o popup/styles/globals.css --minify"
+  },
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.10"
+  }
+}

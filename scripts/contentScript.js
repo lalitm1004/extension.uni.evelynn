@@ -60,7 +60,10 @@ const extractSchedule = () => {
             const cell = cells[j];
             const className = cell.className;
 
-            if (className.indexOf('SSSWEEKLYBACKGROUND') !== -1) {
+            if (
+                className.indexOf('SSSWEEKLYBACKGROUNDOVLP') === -1 &&
+                className.indexOf('PSLEVEL3GRID') === -1
+            ) {
                 const parsedCell = parseCell(cell);
                 schedule[days[j-1]].push(parsedCell);
             }

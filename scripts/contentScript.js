@@ -72,7 +72,8 @@ const extractSchedule = () => {
 
 const pushScheduleToHandler = (schedule) => {
     const queryString = encodeURIComponent(JSON.stringify(schedule));
-    const url = `https://uni.evelynn.life/uploadSchedule?schedule=${queryString}`;
+    // const url = `https://uni.evelynn.life/uploadSchedule?schedule=${queryString}`;
+    const url = `http://localhost:5173/sync?schedule=${queryString}`;
     chrome.runtime.sendMessage({
         action: 'pushToHandler',
         url: url,

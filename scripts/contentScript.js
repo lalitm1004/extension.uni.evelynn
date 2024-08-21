@@ -8,10 +8,9 @@ const convertToMilitaryTime = (timeStr) => {
     return `${hours.toString().padStart(2, '0')}${minutes.toString().padStart(2, '0')}`;
 }
 
-const parseCell = (cell) => {
-    const spanContent = cell.querySelector('.SSSTEXTWEEKLY').innerHTML;
+const parseSpanContent = (spanContent) => {
     const [courseInfo, componentType, timeInfo, venueInfo] = spanContent.split('<br>');
-
+    
     const [code, section] = courseInfo.split(' - ');
     const courseCode = `${code.substring(code.length-6)}-${section}`;
 
@@ -34,11 +33,65 @@ const parseCell = (cell) => {
     return parsedCell;
 }
 
+const parseCell = (cell) => {
+    const spanContent = cell.querySelector('.SSSTEXTWEEKLY').innerHTML;
+
+    if (spanContent.indexOf('<hr') !== -1) {
+        return Array.from(spanContent.split('<hr width="75%" class="PSHORIZONTALRULE">'), value => parseSpanContent(value));
+    } else {
+        return [parseSpanContent(spanContent)];
+    }
+}
+
+const checkOverlap = (timingsOne, timingsTwo) => {
+    const timingsOneSplit = timingsOne.split('-');
+    const timingsOneStart = parseInt(timingsOneSplit[0]);
+    const timingsOneEnd = parseInt(timingsOneSplit[1]);
+
+    const timingsTwoSplit = timingsTwo.split('-');
+    const timingsTwoStart = parseInt(timingsTwoSplit[0]);
+    const timingsTwoEnd = parseInt(timingsTwoSplit[1]);
+
+    return (
+        (timingsOneStart <= timingsTwoStart && timingsTwoStart <= timingsOneEnd) ||
+        (timingsOneStart <= timingsTwoEnd && timingsTwoEnd <= timingsOneEnd) ||
+        (timingsTwoStart <= timingsOneStart && timingsOneStart <= timingsTwoEnd) ||
+        (timingsTwoStart <= timingsOneEnd && timingsOneEnd <= timingsTwoEnd)
+    )
+}
+
+const checkConflict = (parsedCell, currentDay) => {
+    const timingsOne = parsedCell.timings;
+
+    for (let i = 0; i < currentDay.length; i++) {
+        const currentCell = currentDay[i];
+        const timingsTwo = currentCell.timings;
+        if (checkOverlap(timingsOne, timingsTwo)) {
+            console.log(currentCell);
+            return true;
+        }
+    }
+}
+
+const pushToSchedule = (schedule, cell, day) => {
+    const currentDay = Array.from(schedule[day]);
+    let isExisting = false;
+    for (const existingCell of currentDay) {
+        if (existingCell.code === cell.code) {
+            isExisting = true;
+            break;
+        }
+    }
+    if (!isExisting) schedule[day].push(cell);
+    return schedule
+}
+
+
 const extractSchedule = () => {
     const table = document.getElementById('WEEKLY_SCHED_HTMLAREA');
-    const rows = table.querySelectorAll('tr');
+    const tableRows = table.querySelectorAll('tr');
 
-    const schedule = {
+    let schedule = {
         mon: [],
         tue: [],
         wed: [],
@@ -48,30 +101,44 @@ const extractSchedule = () => {
         sun: [],
     };
 
-    const days = [
-        'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun',
-    ];
+    const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
-    for (let i = 1; i < rows.length; i++) {
-        // i = 1 to skip header row
-        const cells = rows[i].querySelectorAll('td');
-        for (let j = 1; j < cells.length; j++) {
-            // j = 1 to skip timing col
-            const cell = cells[j];
-            const className = cell.className;
+    const rowOffset = Array(tableRows.length).fill(0);
 
-            if (
-                className.indexOf('SSSWEEKLYBACKGROUNDOVLP') === -1 &&
-                className.indexOf('PSLEVEL3GRID') === -1
-            ) {
-                const parsedCell = parseCell(cell);
-                schedule[days[j-1]].push(parsedCell);
+    for (let i = 1; i < tableRows.length; i++) {
+        let row = tableRows[i];
+        let cols = row.querySelectorAll('td');
+
+        for (let j = 1; j < cols.length; j++) {
+            const cell = cols[j];
+            if (cell.className === 'PSLEVEL3GRID') continue;
+
+            if (cols.length === 8) {
+                // complete row
+                const classes = parseCell(cell);
+                classes.forEach(value => schedule = pushToSchedule(schedule, value, days[j - 1]));
+            } else {
+                // incomplete row
+                const classes = parseCell(cell);
+                const currentDay = Array.from(schedule[days[j - 1]]);
+                classes.forEach(value => {
+                    const conflictStatus = checkConflict(value, currentDay);
+                    if (conflictStatus) {
+                        // Safe bounds check
+                        schedule = pushToSchedule(schedule, value, days[j + rowOffset[i]]);
+                        console.log(rowOffset, value, i, rowOffset[i], j, j + rowOffset[i], days[j + rowOffset[i]]);
+                        rowOffset[i]++;
+                    } else {
+                        console.log('no conflict incomplete', rowOffset, value, i, rowOffset[i], j, j - 1 + rowOffset[i], days[j -1 + rowOffset[i]])
+                        schedule = pushToSchedule(schedule, value, days[j - 1 + rowOffset[i]]);
+                    }
+                });
             }
         }
     }
 
     return schedule;
-}
+};
 
 const pushScheduleToHandler = (schedule) => {
     const queryString = encodeURIComponent(JSON.stringify(schedule));
